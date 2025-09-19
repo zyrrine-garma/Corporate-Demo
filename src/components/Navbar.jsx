@@ -11,19 +11,20 @@ const Navbar = () => {
 
   const toggleNav = () => setNavOpen(!navOpen);
 
+  // Memoize sections to avoid ESLint warning
   const sections = useMemo(
     () => ["home", "about", "services", "testimonials", "contact"],
     []
   );
 
-  // Track scroll for navbar background
+  // Scroll effect for navbar background
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Track active section for homepage
+  // Track active section only on homepage
   useEffect(() => {
     if (location.pathname !== "/") return;
 
@@ -65,27 +66,44 @@ const Navbar = () => {
         {/* Desktop Links */}
         <ul className="items-center hidden space-x-8 font-medium text-white md:flex">
           {location.pathname === "/" ? (
-            sections.slice(0, -1).map((section) => (
-              <li key={section} className="relative group">
+            sections.map((section) =>
+              section === "contact" ? (
                 <ScrollLink
+                  key={section}
                   to={section}
-                  smooth
+                  smooth={true}
                   duration={500}
-                  className={`cursor-pointer transition-all duration-300 transform ${
+                  offset={-80}
+                  className={`px-4 py-2 rounded-lg shadow-lg transition-all duration-300 transform ${
                     activeSection === section
-                      ? "text-teal scale-105 shadow-lg"
-                      : "hover:text-teal hover:scale-105 hover:shadow-md"
+                      ? "bg-teal text-white scale-105 shadow-2xl shadow-teal/40"
+                      : "bg-teal text-white hover:bg-columbia_blue hover:scale-105 hover:shadow-xl"
                   }`}
                 >
                   {section.charAt(0).toUpperCase() + section.slice(1)}
                 </ScrollLink>
-                <span
-                  className={`absolute left-0 -bottom-1 h-0.5 bg-teal transition-all duration-300 group-hover:w-full ${
-                    activeSection === section ? "w-full" : "w-0"
-                  }`}
-                ></span>
-              </li>
-            ))
+              ) : (
+                <li key={section} className="relative group">
+                  <ScrollLink
+                    to={section}
+                    smooth={true}
+                    duration={500}
+                    className={`cursor-pointer transition-all duration-300 transform ${
+                      activeSection === section
+                        ? "text-teal scale-105 shadow-lg"
+                        : "hover:text-teal hover:scale-105 hover:shadow-md"
+                    }`}
+                  >
+                    {section.charAt(0).toUpperCase() + section.slice(1)}
+                  </ScrollLink>
+                  <span
+                    className={`absolute left-0 -bottom-1 h-0.5 bg-teal transition-all duration-300 group-hover:w-full ${
+                      activeSection === section ? "w-full" : "w-0"
+                    }`}
+                  ></span>
+                </li>
+              )
+            )
           ) : (
             <NavLink
               to="/"
@@ -98,23 +116,9 @@ const Navbar = () => {
               Home
             </NavLink>
           )}
-          {/* Contact Button */}
-          <ScrollLink
-            to="contact"
-            smooth
-            duration={500}
-            offset={-80}
-            className={`px-4 py-2 rounded-lg shadow-lg transition-all duration-300 transform ${
-              activeSection === "contact"
-                ? "bg-teal text-white scale-105 shadow-2xl shadow-teal/40"
-                : "bg-teal text-white hover:bg-columbia_blue hover:scale-105 hover:shadow-xl"
-            }`}
-          >
-            Contact
-          </ScrollLink>
         </ul>
 
-        {/* Mobile Menu Overlay */}
+        {/* Mobile Menu */}
         <div
           className={`md:hidden fixed top-0 left-0 w-full h-screen bg-gunmetal/95 text-white flex flex-col items-center justify-center space-y-6 transition-transform duration-500 ease-in-out z-50 ${
             navOpen
@@ -123,12 +127,13 @@ const Navbar = () => {
           }`}
         >
           {location.pathname === "/" ? (
-            sections.slice(0, -1).map((section) => (
+            sections.map((section) => (
               <ScrollLink
                 key={section}
                 to={section}
-                smooth
+                smooth={true}
                 duration={500}
+                offset={section === "contact" ? -80 : 0}
                 className="text-2xl transition-all duration-300 cursor-pointer hover:text-teal"
                 onClick={() => setNavOpen(false)}
               >
@@ -144,18 +149,6 @@ const Navbar = () => {
               Home
             </NavLink>
           )}
-
-          {/* Contact button */}
-          <ScrollLink
-            to="contact"
-            smooth
-            duration={500}
-            offset={-80}
-            className="px-6 py-3 text-white transition-all duration-300 rounded-lg bg-teal hover:bg-columbia_blue"
-            onClick={() => setNavOpen(false)}
-          >
-            Contact
-          </ScrollLink>
         </div>
 
         {/* Mobile Hamburger */}
